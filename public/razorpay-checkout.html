@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Razorpay Payment - FinControl AI</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .loader {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #2563eb;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 420px;
+      text-align: center;
+    }
+    .error-box h2 { color: #dc2626; margin-bottom: 8px; font-size: 18px; }
+    .error-box p { color: #991b1b; font-size: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div id="status">
+    <div class="loader">
+      <div class="spinner"></div>
+      <p>Loading Razorpay Checkout...</p>
+    </div>
+  </div>
+
+  <!-- Razorpay Checkout script -->
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+  <script>
+    (function() {
+      // This page runs in a popup window (opened by the main app to escape
+      // iframe sandbox restrictions). It receives payment config via URL
+      // query params, opens Razorpay Checkout, and sends the result back to
+      // the parent window via postMessage.
+
+      var params = new URLSearchParams(window.location.search);
+      var keyId = params.get('key');
+      var amountPaise = parseInt(params.get('amount'), 10);
+      var orderId = params.get('order_id');
+      var currency = params.get('currency') || 'INR';
+      var name = params.get('name') || 'FinControl AI';
+      var description = params.get('description') || 'Payment';
+      var email = params.get('email') || '';
+      var origin = params.get('origin') || '*';
+
+      function sendToParent(msg) {
+        try {
+          if (window.opener) {
+            window.opener.postMessage(msg, origin);
+          }
+        } catch (e) {
+          console.error('postMessage error:', e);
+        }
+      }
+
+      function showError(message) {
+        document.getElementById('status').innerHTML =
+          '<div class="error-box"><h2>Payment Error</h2><p>' + message + '</p></div>';
+      }
+
+      if (!keyId || !orderId || !amountPaise) {
+        showError('Missing payment parameters. Please close this window and try again.');
+        sendToParent({ type: 'razorpay_error', error: 'Missing payment parameters' });
+        return;
+      }
+
+      if (typeof Razorpay === 'undefined') {
+        showError('Failed to load Razorpay checkout script. Check your network connection.');
+        sendToParent({ type: 'razorpay_error', error: 'Razorpay script failed to load' });
+        return;
+      }
+
+      var rzp = new Razorpay({
+        key: keyId,
+        amount: amountPaise,
+        currency: currency,
+        name: name,
+        description: description,
+        order_id: orderId,
+        prefill: { email: email },
+        theme: { color: '#2563eb' },
+        handler: function(response) {
+          sendToParent({
+            type: 'razorpay_success',
+            razorpay_order_id: response.razorpay_order_id,
+            razorpay_payment_id: response.razorpay_payment_id,
+            razorpay_signature: response.razorpay_signature,
+          });
+          document.getElementById('status').innerHTML =
+            '<div class="loader"><p>Payment successful! Verifying...</p></div>';
+          setTimeout(function() { window.close(); }, 1500);
+        },
+        modal: {
+          ondismiss: function() {
+            sendToParent({ type: 'razorpay_dismissed' });
+            setTimeout(function() { window.close(); }, 200);
+          },
+        },
+      });
+
+      rzp.on('payment.failed', function(response) {
+        sendToParent({
+          type: 'razorpay_error',
+          error: response.error?.description || 'Payment failed',
+          code: response.error?.code || '',
+        });
+      });
+
+      // Open checkout after a short delay to ensure the modal renders properly
+      setTimeout(function() { rzp.open(); }, 300);
+    })();
+  </script>
+</body>
+</html>
