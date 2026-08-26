@@ -1,10 +1,11 @@
-import { LayoutDashboard, ArrowLeftRight, Flag, Scale, Sparkles, LogOut, X } from 'lucide-react';
+import { LayoutDashboard, ArrowLeftRight, Flag, Scale, Sparkles, CreditCard, LogOut, X } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 import { classNames } from '@/lib/format';
 
 const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { id: 'transactions', label: 'Transactions', icon: ArrowLeftRight },
+  { id: 'payments', label: 'Payments', icon: CreditCard },
   { id: 'review', label: 'Review Queue', icon: Flag, adminOnly: true },
   { id: 'reconciliation', label: 'Reconciliation', icon: Scale },
   { id: 'insights', label: 'AI Insights', icon: Sparkles },

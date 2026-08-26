@@ -1,4 +1,4 @@
-import { Menu, ShieldCheck, Eye, CreditCard } from 'lucide-react';
+import { Menu, ShieldCheck, Eye, CreditCard, AlertCircle, RotateCcw } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle.jsx';
 import { useAuth } from '@/lib/auth';
 
@@ -12,10 +12,15 @@ export function Topbar({ title, onMenuClick, onMakePayment }) {
       <h2 className="flex-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
       <div className="flex items-center gap-2">
         {onMakePayment && (
-          <button onClick={onMakePayment} className="btn-primary text-sm">
-            <CreditCard className="h-4 w-4" />
-            <span className="hidden sm:inline">Make Payment</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <span className="hidden rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 sm:inline-flex">
+              Test Mode
+            </span>
+            <button onClick={onMakePayment} className="btn-primary text-sm">
+              <CreditCard className="h-4 w-4" />
+              <span className="hidden sm:inline">Make Payment</span>
+            </button>
+          </div>
         )}
         <div className="hidden items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300 sm:flex">
           {role === 'admin' ? <ShieldCheck className="h-3.5 w-3.5 text-brand-600" /> : <Eye className="h-3.5 w-3.5 text-slate-500" />}

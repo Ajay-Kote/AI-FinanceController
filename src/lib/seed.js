@@ -3,37 +3,38 @@ import { suggestCategory } from './categorize';
 
 // Generates 60+ sample transactions across the last 8 months so the dashboard
 // looks populated on first load. Called once when the admin has zero transactions.
+// All amounts are in INR (rupees).
 const VENDORS = [
-  { vendor: 'Stripe', desc: 'Client payment - Acme Corp', amount: 8500, method: 'bank_transfer' },
-  { vendor: 'Stripe', desc: 'Client payment - Globex', amount: 12000, method: 'bank_transfer' },
-  { vendor: 'Stripe', desc: 'Client payment - Initech', amount: 6200, method: 'bank_transfer' },
-  { vendor: 'Gusto', desc: 'Payroll run - biweekly', amount: -9800, method: 'bank_transfer' },
-  { vendor: 'Gusto', desc: 'Payroll run - biweekly', amount: -9800, method: 'bank_transfer' },
-  { vendor: 'AWS', desc: 'Cloud infrastructure monthly', amount: -1450, method: 'credit_card' },
-  { vendor: 'GitHub', desc: 'Organization subscription', amount: -96, method: 'credit_card' },
-  { vendor: 'Vercel', desc: 'Pro plan hosting', amount: -20, method: 'credit_card' },
-  { vendor: 'Figma', desc: 'Design team seats', amount: -240, method: 'credit_card' },
-  { vendor: 'Notion', desc: 'Workspace subscription', amount: -76, method: 'credit_card' },
-  { vendor: 'Slack', desc: 'Business plan', amount: -72, method: 'credit_card' },
-  { vendor: 'OpenAI', desc: 'API usage', amount: -310, method: 'credit_card' },
-  { vendor: 'Google Ads', desc: 'Q1 advertising campaign', amount: -3200, method: 'credit_card' },
-  { vendor: 'Mailchimp', desc: 'Email marketing', amount: -99, method: 'credit_card' },
-  { vendor: 'HubSpot', desc: 'CRM subscription', amount: -800, method: 'credit_card' },
-  { vendor: 'Uber', desc: 'Client meeting travel', amount: -45, method: 'credit_card' },
-  { vendor: 'Marriott', desc: 'Conference hotel', amount: -890, method: 'credit_card' },
-  { vendor: 'DoorDash', desc: 'Team lunch', amount: -128, method: 'credit_card' },
-  { vendor: 'Starbucks', desc: 'Coffee meeting', amount: -18, method: 'credit_card' },
-  { vendor: 'Comcast', desc: 'Office internet', amount: -199, method: 'bank_transfer' },
-  { vendor: 'PG&E', desc: 'Electricity bill', amount: -340, method: 'bank_transfer' },
-  { vendor: 'Equity Office', desc: 'Monthly office rent', amount: -4500, method: 'bank_transfer' },
-  { vendor: 'Staples', desc: 'Office supplies', amount: -156, method: 'credit_card' },
-  { vendor: 'Apple', desc: 'New MacBook Pro', amount: -2499, method: 'credit_card' },
-  { vendor: 'Dell', desc: 'Monitor for new hire', amount: -430, method: 'credit_card' },
-  { vendor: 'IRS', desc: 'Quarterly tax payment', amount: -5200, method: 'bank_transfer' },
-  { vendor: 'Aetna', desc: 'Health insurance premium', amount: -1200, method: 'bank_transfer' },
-  { vendor: 'LegalEase', desc: 'Contract review services', amount: -750, method: 'bank_transfer' },
-  { vendor: 'Stripe', desc: 'Refund processed', amount: -500, method: 'bank_transfer' },
-  { vendor: 'Best Buy', desc: 'Office keyboard and mouse', amount: -89, method: 'credit_card' },
+  { vendor: 'Razorpay', desc: 'Client payment - Acme Corp', amount: 85000, method: 'bank_transfer' },
+  { vendor: 'Razorpay', desc: 'Client payment - Globex', amount: 120000, method: 'bank_transfer' },
+  { vendor: 'Razorpay', desc: 'Client payment - Initech', amount: 62000, method: 'bank_transfer' },
+  { vendor: 'Gusto', desc: 'Payroll run - biweekly', amount: -98000, method: 'bank_transfer' },
+  { vendor: 'Gusto', desc: 'Payroll run - biweekly', amount: -98000, method: 'bank_transfer' },
+  { vendor: 'AWS', desc: 'Cloud infrastructure monthly', amount: -14500, method: 'credit_card' },
+  { vendor: 'GitHub', desc: 'Organization subscription', amount: -960, method: 'credit_card' },
+  { vendor: 'Vercel', desc: 'Pro plan hosting', amount: -2000, method: 'credit_card' },
+  { vendor: 'Figma', desc: 'Design team seats', amount: -2400, method: 'credit_card' },
+  { vendor: 'Notion', desc: 'Workspace subscription', amount: -760, method: 'credit_card' },
+  { vendor: 'Slack', desc: 'Business plan', amount: -720, method: 'credit_card' },
+  { vendor: 'OpenAI', desc: 'API usage', amount: -3100, method: 'credit_card' },
+  { vendor: 'Google Ads', desc: 'Q1 advertising campaign', amount: -32000, method: 'credit_card' },
+  { vendor: 'Mailchimp', desc: 'Email marketing', amount: -990, method: 'credit_card' },
+  { vendor: 'HubSpot', desc: 'CRM subscription', amount: -8000, method: 'credit_card' },
+  { vendor: 'Uber', desc: 'Client meeting travel', amount: -450, method: 'credit_card' },
+  { vendor: 'Marriott', desc: 'Conference hotel', amount: -8900, method: 'credit_card' },
+  { vendor: 'DoorDash', desc: 'Team lunch', amount: -1280, method: 'credit_card' },
+  { vendor: 'Starbucks', desc: 'Coffee meeting', amount: -180, method: 'credit_card' },
+  { vendor: 'Comcast', desc: 'Office internet', amount: -1990, method: 'bank_transfer' },
+  { vendor: 'PG&E', desc: 'Electricity bill', amount: -3400, method: 'bank_transfer' },
+  { vendor: 'Equity Office', desc: 'Monthly office rent', amount: -45000, method: 'bank_transfer' },
+  { vendor: 'Staples', desc: 'Office supplies', amount: -1560, method: 'credit_card' },
+  { vendor: 'Apple', desc: 'New MacBook Pro', amount: -24990, method: 'credit_card' },
+  { vendor: 'Dell', desc: 'Monitor for new hire', amount: -4300, method: 'credit_card' },
+  { vendor: 'IRS', desc: 'Quarterly tax payment', amount: -52000, method: 'bank_transfer' },
+  { vendor: 'Aetna', desc: 'Health insurance premium', amount: -12000, method: 'bank_transfer' },
+  { vendor: 'LegalEase', desc: 'Contract review services', amount: -7500, method: 'bank_transfer' },
+  { vendor: 'Razorpay', desc: 'Refund processed', amount: -5000, method: 'bank_transfer' },
+  { vendor: 'Best Buy', desc: 'Office keyboard and mouse', amount: -890, method: 'credit_card' },
 ];
 
 function randomDate(monthsBack) {
@@ -44,7 +45,6 @@ function randomDate(monthsBack) {
 
 export async function seedSampleData(userId) {
   const rows = [];
-  // Generate ~60 transactions across the last 8 months.
   for (let m = 0; m < 8; m++) {
     const count = 7 + Math.floor(Math.random() * 4);
     for (let i = 0; i < count; i++) {
@@ -59,10 +59,9 @@ export async function seedSampleData(userId) {
       });
     }
   }
-  // Add one deliberately anomalous transaction (very high amount).
   rows.push({
     date: randomDate(1),
-    amount: -18500,
+    amount: -185000,
     category: 'Consulting',
     description: 'Emergency consulting engagement',
     vendor: 'McKinsey',
