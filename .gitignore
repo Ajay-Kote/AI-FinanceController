@@ -11,6 +11,15 @@ dist
 dist-ssr
 *.local
 
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+!.env.*.example
+
+# Supabase CLI state
+supabase/.temp/
+
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -20,4 +29,3 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
-.env

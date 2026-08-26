@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import { Loader2, CreditCard, AlertCircle, RotateCcw } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { fetchTransactions, recomputeAnomalies } from '@/lib/transactions';
-import { seedSampleData } from '@/lib/seed';
 import { startRazorpayPayment } from '@/lib/razorpay';
 import { Login } from '@/pages/Login';
 import { Sidebar } from '@/components/Sidebar';
@@ -153,12 +152,7 @@ function AppContent() {
   const loadTransactions = async () => {
     setDataLoading(true);
     try {
-      let data = await fetchTransactions();
-      if (data.length === 0 && role === 'admin' && session) {
-        await seedSampleData(session.user.id);
-        await recomputeAnomalies();
-        data = await fetchTransactions();
-      }
+      const data = await fetchTransactions();
       setTransactions(data);
     } catch (err) {
       console.error('Failed to load transactions:', err);
