@@ -12,6 +12,22 @@ A full-stack finance dashboard for tracking transactions, identifying anomalies,
 - Razorpay INR payments, refunds, and optional webhook processing
 - Gemini-powered answers about the signed-in user's financial data
 
+## Demo Credentials
+
+Admin account:
+- Email: `admin@demo.com`
+- Password: `Demo@1234`
+- Organization: `DemoCorp`
+
+Employee account:
+- Email: `employee@demo.com`
+- Password: `Demo@1234`
+- Organization: `DemoCorp`
+
+Both accounts belong to the same organization and share the same live transaction data. Use the Admin account to view/manage all transactions, approve expense requests, and test Razorpay payments. Use the Employee account to submit expense requests and view read-only data.
+
+Test card for Razorpay payments: `5267 3181 8797 5449`, any future expiry, CVV `123`.
+
 ## Technology
 
 - React, Vite, Tailwind CSS, Recharts, and Lucide
