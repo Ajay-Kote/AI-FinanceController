@@ -11,7 +11,7 @@ export function AuthProvider({ children }) {
   async function loadProfile(uid) {
     const { data, error } = await supabase
       .from('profiles')
-      .select('id, email, role, created_at')
+      .select('id, email, role, organization_id, created_at, organizations(name)')
       .eq('id', uid)
       .maybeSingle();
     if (error) {
@@ -49,8 +49,12 @@ export function AuthProvider({ children }) {
     if (error) throw error;
   };
 
-  const signUp = async (email, password) => {
-    const { error } = await supabase.auth.signUp({ email, password });
+  const signUp = async (email, password, role, organizationName) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { role, organization_name: organizationName } },
+    });
     if (error) throw error;
   };
 

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Scale, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { Scale, Mail, Lock, Loader2, AlertCircle, Building2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
 
 export function Login() {
@@ -7,6 +7,8 @@ export function Login() {
   const [mode, setMode] = useState('signin');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [accountRole, setAccountRole] = useState('admin');
+  const [organizationName, setOrganizationName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -18,13 +20,18 @@ export function Login() {
       if (mode === 'signin') {
         await signIn(email, password);
       } else {
-        await signUp(email, password);
+        if (!organizationName.trim()) throw new Error('Organization name is required.');
+        await signUp(email, password, accountRole, organizationName.trim());
         await signIn(email, password);
       }
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'Something went wrong';
       if (msg.toLowerCase().includes('invalid login')) {
         setError('Invalid email or password. If you just signed up, try signing in.');
+      } else if (msg.toLowerCase().includes('already exists')) {
+        setError('An organization with this name already exists. Please choose a different name or contact your admin.');
+      } else if (msg.toLowerCase().includes('does not exist')) {
+        setError('This organization does not exist. Please check the name or ask your admin to register first.');
       } else {
         setError(msg);
       }
@@ -84,6 +91,31 @@ export function Login() {
                 />
               </div>
             </div>
+            {mode === 'signup' && (
+              <>
+                <div>
+                  <span className="label">Account type</span>
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      { value: 'admin', label: 'Admin' },
+                      { value: 'viewer', label: 'Employee' },
+                    ].map((option) => (
+                      <label key={option.value} className="flex cursor-pointer items-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-sm dark:border-slate-700">
+                        <input type="radio" name="account-role" value={option.value} checked={accountRole === option.value} onChange={(e) => setAccountRole(e.target.value)} />
+                        {option.label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <div>
+                  <label className="label" htmlFor="organization-name">Organization Name</label>
+                  <div className="relative">
+                    <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input id="organization-name" type="text" required value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} className="input pl-10" placeholder="Acme Corp" />
+                  </div>
+                </div>
+              </>
+            )}
             <div>
               <label className="label" htmlFor="password">Password</label>
               <div className="relative">
@@ -115,11 +147,7 @@ export function Login() {
           </form>
 
           <p className="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">
-            {mode === 'signin' ? (
-              <>The first account created becomes the Admin. New accounts start as Viewers.</>
-            ) : (
-              <>New accounts are assigned the Viewer role. The first account is automatically Admin.</>
-            )}
+            {mode === 'signin' ? <>Sign in to your organization workspace.</> : <>Admins create organizations. Employees join an existing organization.</>}
           </p>
         </div>
       </div>

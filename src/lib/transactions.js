@@ -36,6 +36,27 @@ export async function createTransaction(input) {
   return data;
 }
 
+export async function createExpenseRequest(input, user) {
+  const { data, error } = await supabase
+    .from('transactions')
+    .insert({
+      date: input.date,
+      amount: -Math.abs(Number(input.amount)),
+      category: input.category,
+      description: input.description,
+      vendor: input.vendor,
+      payment_method: input.payment_method ?? 'other',
+      status: 'pending',
+      requested_by: user.id,
+      requested_by_email: user.email,
+      requested_by_employee: true,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
+}
+
 // After creating/updating, re-run anomaly detection across the user's full set
 // and persist flags. Returns the updated transactions.
 export async function recomputeAnomalies() {

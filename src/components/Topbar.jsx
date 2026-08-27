@@ -1,16 +1,25 @@
-import { Menu, ShieldCheck, Eye, CreditCard, AlertCircle, RotateCcw } from 'lucide-react';
+import { Menu, ShieldCheck, Eye, CreditCard, Receipt } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle.jsx';
 import { useAuth } from '@/lib/auth';
 
-export function Topbar({ title, onMenuClick, onMakePayment }) {
-  const { role } = useAuth();
+export function Topbar({ title, onMenuClick, onMakePayment, onRequestExpense }) {
+  const { role, profile } = useAuth();
   return (
     <header className="sticky top-0 z-20 flex h-16 items-center gap-4 border-b border-slate-200 bg-white/80 px-4 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/80 lg:px-6">
       <button onClick={onMenuClick} className="btn-ghost p-2 lg:hidden" aria-label="Open menu">
         <Menu className="h-5 w-5" />
       </button>
-      <h2 className="flex-1 text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+      <div className="flex-1">
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100">{title}</h2>
+        <p className="truncate text-xs text-slate-500 dark:text-slate-400">{profile?.organizations?.name}</p>
+      </div>
       <div className="flex items-center gap-2">
+        {onRequestExpense && (
+          <button onClick={onRequestExpense} className="btn-secondary text-sm">
+            <Receipt className="h-4 w-4" />
+            <span className="hidden sm:inline">Request Expense</span>
+          </button>
+        )}
         {onMakePayment && (
           <div className="flex items-center gap-2">
             <span className="hidden rounded-full bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 sm:inline-flex">

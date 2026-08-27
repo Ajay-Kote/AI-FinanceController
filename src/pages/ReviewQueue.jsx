@@ -10,7 +10,10 @@ export function ReviewQueue({ transactions, onChange }) {
   const [acting, setActing] = useState(null);
 
   const flagged = useMemo(
-    () => transactions.filter((t) => t.is_anomaly && (t.status === 'flagged' || t.status === 'pending')),
+    () => transactions.filter((t) =>
+      (t.is_anomaly && (t.status === 'flagged' || t.status === 'pending'))
+      || (t.requested_by_employee && t.status === 'pending')
+    ),
     [transactions]
   );
 
@@ -40,9 +43,9 @@ export function ReviewQueue({ transactions, onChange }) {
           <ShieldAlert className="h-6 w-6" />
         </div>
         <div>
-          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">Anomaly Review Queue</h3>
+          <h3 className="text-base font-semibold text-slate-800 dark:text-slate-100">Review Queue</h3>
           <p className="text-sm text-slate-500 dark:text-slate-400">
-            {flagged.length} transaction{flagged.length !== 1 ? 's' : ''} flagged for review. Approve, reject, or escalate each item.
+            {flagged.length} item{flagged.length !== 1 ? 's' : ''} awaiting review. Approve, reject, or escalate each item.
           </p>
         </div>
       </div>
@@ -51,7 +54,7 @@ export function ReviewQueue({ transactions, onChange }) {
         <div className="card flex flex-col items-center justify-center p-12 text-center">
           <Check className="mb-3 h-10 w-10 text-emerald-400" />
           <h3 className="text-base font-semibold text-slate-700 dark:text-slate-200">All clear</h3>
-          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">No flagged anomalies pending review.</p>
+          <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">No anomalies or employee expense requests pending review.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -65,6 +68,9 @@ export function ReviewQueue({ transactions, onChange }) {
                   <div>
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-slate-800 dark:text-slate-100">{tx.vendor ?? 'Unknown vendor'}</p>
+                      {tx.requested_by_employee && (
+                        <span className="badge bg-sky-100 text-sky-700 dark:bg-sky-900/40 dark:text-sky-300">Employee Request</span>
+                      )}
                       <span className="badge bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
                         {tx.anomaly_confidence ?? 0}% confidence
                       </span>
@@ -73,7 +79,7 @@ export function ReviewQueue({ transactions, onChange }) {
                       {formatDate(tx.date)} · {tx.category ?? 'Uncategorized'} · {formatCurrency(tx.amount, { signed: true })}
                     </p>
                     <p className="mt-1 text-sm text-amber-700 dark:text-amber-400">
-                      {tx.anomaly_reason ?? 'Flagged as anomalous'}
+                      {tx.requested_by_employee ? `Requested by ${tx.requested_by_email ?? 'employee'}${tx.anomaly_reason ? ` · ${tx.anomaly_reason}` : ''}` : (tx.anomaly_reason ?? 'Flagged as anomalous')}
                     </p>
                   </div>
                 </div>

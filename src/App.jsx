@@ -14,6 +14,7 @@ import { Reconciliation } from '@/pages/Reconciliation';
 import { AIInsights } from '@/pages/AIInsights';
 import { ToastContainer } from '@/components/ui/Toast';
 import { Modal } from '@/components/ui/Modal';
+import { ExpenseRequestModal } from '@/components/ExpenseRequestModal';
 
 const PAGE_TITLES = {
   dashboard: 'Dashboard',
@@ -148,6 +149,7 @@ function AppContent() {
   const [transactions, setTransactions] = useState([]);
   const [dataLoading, setDataLoading] = useState(false);
   const [paymentOpen, setPaymentOpen] = useState(false);
+  const [expenseRequestOpen, setExpenseRequestOpen] = useState(false);
 
   const loadTransactions = async () => {
     setDataLoading(true);
@@ -190,7 +192,7 @@ function AppContent() {
   const isAdmin = role === 'admin';
 
   const handleRefresh = async () => {
-    await recomputeAnomalies();
+    if (isAdmin) await recomputeAnomalies();
     await loadTransactions();
   };
 
@@ -202,6 +204,7 @@ function AppContent() {
           title={PAGE_TITLES[page]}
           onMenuClick={() => setSidebarOpen(true)}
           onMakePayment={isAdmin ? () => setPaymentOpen(true) : undefined}
+          onRequestExpense={!isAdmin ? () => setExpenseRequestOpen(true) : undefined}
         />
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">
           {dataLoading && transactions.length === 0 ? (
@@ -216,7 +219,7 @@ function AppContent() {
               )}
               {page === 'payments' && <Payments transactions={transactions} onChange={handleRefresh} readOnly={!isAdmin} />}
               {page === 'review' && isAdmin && <ReviewQueue transactions={transactions} onChange={handleRefresh} />}
-              {page === 'reconciliation' && <Reconciliation />}
+              {page === 'reconciliation' && <Reconciliation readOnly={!isAdmin} />}
               {page === 'insights' && <AIInsights />}
             </>
           )}
@@ -228,6 +231,11 @@ function AppContent() {
         onSuccess={() => {
           handleRefresh();
         }}
+      />
+      <ExpenseRequestModal
+        open={expenseRequestOpen}
+        onClose={() => setExpenseRequestOpen(false)}
+        onSubmitted={handleRefresh}
       />
       <ToastContainer />
     </div>

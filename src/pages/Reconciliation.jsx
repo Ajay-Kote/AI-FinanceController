@@ -5,7 +5,7 @@ import { parseTransactionsCsv } from '@/lib/csv';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { showToast } from '@/components/ui/Toast';
 
-export function Reconciliation() {
+export function Reconciliation({ readOnly = false }) {
   const [invoiceSet, setInvoiceSet] = useState(null);
   const [bankSet, setBankSet] = useState(null);
   const [invoiceRows, setInvoiceRows] = useState([]);
@@ -157,7 +157,7 @@ export function Reconciliation() {
               <Check className="h-5 w-5 text-emerald-500" />
             </div>
           ) : (
-            <button onClick={() => invoiceFileRef.current?.click()} disabled={loading} className="btn-secondary w-full justify-center border-dashed py-6">
+            <button onClick={() => invoiceFileRef.current?.click()} disabled={loading || readOnly} className="btn-secondary w-full justify-center border-dashed py-6">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Upload invoice CSV
             </button>
@@ -176,7 +176,7 @@ export function Reconciliation() {
               <Check className="h-5 w-5 text-emerald-500" />
             </div>
           ) : (
-            <button onClick={() => bankFileRef.current?.click()} disabled={loading} className="btn-secondary w-full justify-center border-dashed py-6">
+            <button onClick={() => bankFileRef.current?.click()} disabled={loading || readOnly} className="btn-secondary w-full justify-center border-dashed py-6">
               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               Upload bank CSV
             </button>

@@ -94,6 +94,20 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY'),
     );
 
+    async function resolveOrganizationId(orderId) {
+      const fromPayload = payload.notes?.organization_id;
+      if (fromPayload) return fromPayload;
+      const keyId = Deno.env.get('RAZORPAY_KEY_ID');
+      const keySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
+      if (!keyId || !keySecret || !orderId) return null;
+      const orderResponse = await fetch(`https://api.razorpay.com/v1/orders/${orderId}`, {
+        headers: { Authorization: `Basic ${btoa(`${keyId}:${keySecret}`)}` },
+      });
+      if (!orderResponse.ok) return null;
+      const order = await orderResponse.json();
+      return order.notes?.organization_id ?? null;
+    }
+
     // -----------------------------------------------------------------
     // payment.captured
     // -----------------------------------------------------------------
@@ -120,7 +134,10 @@ Deno.serve(async (req) => {
           .eq('id', existing.id);
       } else {
         // Webhook arrived before the frontend verified — create the transaction
+        const organizationId = await resolveOrganizationId(orderId);
+        if (!organizationId) throw new Error('Unable to determine the payment organization.');
         await supabase.from('transactions').insert({
+          organization_id: organizationId,
           date: new Date().toISOString().slice(0, 10),
           amount: amount,
           category: 'Revenue',
@@ -160,7 +177,10 @@ Deno.serve(async (req) => {
           })
           .eq('id', existing.id);
       } else {
+        const organizationId = await resolveOrganizationId(orderId);
+        if (!organizationId) throw new Error('Unable to determine the payment organization.');
         await supabase.from('transactions').insert({
+          organization_id: organizationId,
           date: new Date().toISOString().slice(0, 10),
           amount: payload.amount / 100,
           category: 'Revenue',

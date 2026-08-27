@@ -57,6 +57,15 @@ Deno.serve(async (req) => {
       });
     }
 
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', userData.user.id)
+      .single();
+    if (profileError || !profile?.organization_id) {
+      throw new Error('Your account is not linked to an organization.');
+    }
+
     const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID');
     const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET');
 
@@ -102,6 +111,7 @@ Deno.serve(async (req) => {
           notes: {
             description: description || 'Payment via FinControl AI',
             user_id: userData.user.id,
+            organization_id: profile.organization_id,
           },
         }),
       });
@@ -160,6 +170,7 @@ Deno.serve(async (req) => {
       const { data: txData, error: txError } = await supabase
         .from('transactions')
         .insert({
+          organization_id: profile.organization_id,
           date: today,
           amount: amount,
           category: 'Revenue',

@@ -61,17 +61,21 @@ function ChartTooltip({ active, payload, label }) {
 }
 
 export function Dashboard({ transactions }) {
+  const activeTransactions = useMemo(
+    () => transactions.filter((t) => t.status === 'cleared' || t.status === 'approved'),
+    [transactions]
+  );
   const stats = useMemo(() => {
-    const income = transactions.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0);
-    const expenses = transactions.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
+    const income = activeTransactions.filter((t) => t.amount > 0).reduce((s, t) => s + t.amount, 0);
+    const expenses = activeTransactions.filter((t) => t.amount < 0).reduce((s, t) => s + Math.abs(t.amount), 0);
     const net = income - expenses;
     const pendingAnomalies = transactions.filter((t) => t.is_anomaly && (t.status === 'flagged' || t.status === 'pending')).length;
     return { income, expenses, net, pendingAnomalies };
-  }, [transactions]);
+  }, [activeTransactions, transactions]);
 
   const monthlyData = useMemo(() => {
     const map = new Map();
-    for (const t of transactions) {
+    for (const t of activeTransactions) {
       const m = t.date.slice(0, 7);
       if (!map.has(m)) map.set(m, { month: m, income: 0, expenses: 0 });
       const entry = map.get(m);
@@ -79,11 +83,11 @@ export function Dashboard({ transactions }) {
       else entry.expenses += Math.abs(t.amount);
     }
     return [...map.values()].sort((a, b) => a.month.localeCompare(b.month)).slice(-12);
-  }, [transactions]);
+  }, [activeTransactions]);
 
   const categoryData = useMemo(() => {
     const map = new Map();
-    for (const t of transactions) {
+    for (const t of activeTransactions) {
       if (t.amount < 0) {
         const cat = t.category ?? 'Uncategorized';
         map.set(cat, (map.get(cat) ?? 0) + Math.abs(t.amount));
@@ -93,7 +97,7 @@ export function Dashboard({ transactions }) {
       .map(([name, value]) => ({ name, value }))
       .sort((a, b) => b.value - a.value)
       .slice(0, 8);
-  }, [transactions]);
+  }, [activeTransactions]);
 
   const incomeVsExpense = useMemo(
     () => [

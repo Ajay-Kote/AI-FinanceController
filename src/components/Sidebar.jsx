@@ -33,7 +33,7 @@ export function Sidebar({ current, onNavigate, open, onClose }) {
             </div>
             <div>
               <h1 className="text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">FinControl AI</h1>
-              <p className="text-xs text-slate-500 dark:text-slate-400">Finance Controller</p>
+              <p className="max-w-[155px] truncate text-xs text-slate-500 dark:text-slate-400">{profile?.organizations?.name ?? 'Finance Controller'}</p>
             </div>
           </div>
           <button onClick={onClose} className="btn-ghost p-1.5 lg:hidden" aria-label="Close sidebar">
