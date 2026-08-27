@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Scale, Mail, Lock, Loader2, AlertCircle, Building2 } from 'lucide-react';
 import { useAuth } from '@/lib/auth';
+import { DEMO_ORGANIZATION_NAME } from '@/lib/demo';
 
 export function Login() {
   const { signIn, signUp } = useAuth();
@@ -32,6 +33,8 @@ export function Login() {
         setError('An organization with this name already exists. Please choose a different name or contact your admin.');
       } else if (msg.toLowerCase().includes('does not exist')) {
         setError('This organization does not exist. Please check the name or ask your admin to register first.');
+      } else if (msg.toLowerCase().includes('database error saving new user')) {
+        setError('Signup could not be completed. An Admin must use a new organization name; to join an existing organization, select Employee. Confirm the organization migrations are applied in Supabase.');
       } else {
         setError(msg);
       }
@@ -111,7 +114,7 @@ export function Login() {
                   <label className="label" htmlFor="organization-name">Organization Name</label>
                   <div className="relative">
                     <Building2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input id="organization-name" type="text" required value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} className="input pl-10" placeholder="Acme Corp" />
+                    <input id="organization-name" type="text" required value={organizationName} onChange={(e) => setOrganizationName(e.target.value)} className="input pl-10" placeholder={`e.g. ${DEMO_ORGANIZATION_NAME}`} />
                   </div>
                 </div>
               </>
