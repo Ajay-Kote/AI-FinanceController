@@ -32,6 +32,9 @@ export function AuthProvider({ children }) {
     });
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, newSession) => {
+      // getSession() handles the initial session; ignore Supabase's duplicate
+      // INITIAL_SESSION event so the profile is not fetched twice.
+      if (event === 'INITIAL_SESSION') return;
       setSession(newSession);
       if (newSession?.user) {
         void loadProfile(newSession.user.id).finally(() => setLoading(false));

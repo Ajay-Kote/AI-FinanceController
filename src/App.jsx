@@ -1,20 +1,21 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import { Loader2, CreditCard, AlertCircle, RotateCcw } from 'lucide-react';
 import { AuthProvider, useAuth } from '@/lib/auth';
 import { fetchTransactions, recomputeAnomalies } from '@/lib/transactions';
 import { startRazorpayPayment } from '@/lib/razorpay';
-import { Login } from '@/pages/Login';
 import { Sidebar } from '@/components/Sidebar';
 import { Topbar } from '@/components/Topbar';
-import { Dashboard } from '@/pages/Dashboard';
-import { Transactions } from '@/pages/Transactions';
-import { Payments } from '@/pages/Payments';
-import { ReviewQueue } from '@/pages/ReviewQueue';
-import { Reconciliation } from '@/pages/Reconciliation';
-import { AIInsights } from '@/pages/AIInsights';
 import { ToastContainer } from '@/components/ui/Toast';
 import { Modal } from '@/components/ui/Modal';
 import { ExpenseRequestModal } from '@/components/ExpenseRequestModal';
+
+const Login = lazy(() => import('@/pages/Login').then((module) => ({ default: module.Login })));
+const Dashboard = lazy(() => import('@/pages/Dashboard').then((module) => ({ default: module.Dashboard })));
+const Transactions = lazy(() => import('@/pages/Transactions').then((module) => ({ default: module.Transactions })));
+const Payments = lazy(() => import('@/pages/Payments').then((module) => ({ default: module.Payments })));
+const ReviewQueue = lazy(() => import('@/pages/ReviewQueue').then((module) => ({ default: module.ReviewQueue })));
+const Reconciliation = lazy(() => import('@/pages/Reconciliation').then((module) => ({ default: module.Reconciliation })));
+const AIInsights = lazy(() => import('@/pages/AIInsights').then((module) => ({ default: module.AIInsights })));
 
 const PAGE_TITLES = {
   dashboard: 'Dashboard',
@@ -24,6 +25,14 @@ const PAGE_TITLES = {
   reconciliation: 'Reconciliation',
   insights: 'AI Insights',
 };
+
+function LoadingScreen() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <Loader2 className="h-8 w-8 animate-spin text-brand-600" />
+    </div>
+  );
+}
 
 function PaymentModal({ open, onClose, onSuccess }) {
   const [amount, setAmount] = useState('');
@@ -186,13 +195,22 @@ function AppContent() {
   }
 
   if (!session || !profile) {
-    return <Login />;
+    return (
+      <Suspense fallback={<LoadingScreen />}>
+        <Login />
+      </Suspense>
+    );
   }
 
   const isAdmin = role === 'admin';
 
   const handleRefresh = async () => {
-    if (isAdmin) await recomputeAnomalies();
+    if (isAdmin) {
+      // recomputeAnomalies already returns the final transaction list.
+      const data = await recomputeAnomalies();
+      setTransactions(data);
+      return;
+    }
     await loadTransactions();
   };
 
@@ -212,7 +230,7 @@ function AppContent() {
               <Loader2 className="h-6 w-6 animate-spin text-brand-600" />
             </div>
           ) : (
-            <>
+            <Suspense fallback={<div className="flex h-64 items-center justify-center"><Loader2 className="h-6 w-6 animate-spin text-brand-600" /></div>}>
               {page === 'dashboard' && <Dashboard transactions={transactions} />}
               {page === 'transactions' && (
                 <Transactions transactions={transactions} onChange={handleRefresh} readOnly={!isAdmin} />
@@ -221,7 +239,7 @@ function AppContent() {
               {page === 'review' && isAdmin && <ReviewQueue transactions={transactions} onChange={handleRefresh} />}
               {page === 'reconciliation' && <Reconciliation readOnly={!isAdmin} />}
               {page === 'insights' && <AIInsights />}
-            </>
+            </Suspense>
           )}
         </main>
       </div>

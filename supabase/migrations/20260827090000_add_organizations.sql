@@ -63,6 +63,9 @@ ALTER TABLE public.transactions
   ADD CONSTRAINT transactions_organization_id_fkey
     FOREIGN KEY (organization_id) REFERENCES public.organizations(id) ON DELETE RESTRICT;
 
+CREATE INDEX IF NOT EXISTS idx_transactions_organization_date
+  ON public.transactions(organization_id, date DESC);
+
 ALTER TABLE public.reconciliation_sets ADD COLUMN IF NOT EXISTS organization_id uuid;
 UPDATE public.reconciliation_sets s
 SET organization_id = p.organization_id

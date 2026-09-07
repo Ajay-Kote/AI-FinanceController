@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Check, X, AlertTriangle, Flag, Loader2, ShieldAlert } from 'lucide-react';
-import { recomputeAnomalies, reviewTransaction } from '@/lib/transactions';
+import { reviewTransaction } from '@/lib/transactions';
 import { useAuth } from '@/lib/auth';
 import { formatCurrency, formatDate } from '@/lib/format';
 import { showToast } from '@/components/ui/Toast';
@@ -26,7 +26,6 @@ export function ReviewQueue({ transactions, onChange }) {
     setActing(id);
     try {
       await reviewTransaction(id, action, session.user.id);
-      await recomputeAnomalies();
       onChange();
       showToast('success', `Transaction ${action}`);
     } catch (err) {

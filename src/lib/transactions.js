@@ -5,7 +5,7 @@ import { suggestCategory } from './categorize';
 export async function fetchTransactions() {
   const { data, error } = await supabase
     .from('transactions')
-    .select('*')
+    .select('id, user_id, organization_id, date, amount, category, description, vendor, payment_method, status, is_anomaly, anomaly_reason, anomaly_confidence, reviewed_by, reviewed_at, created_at, razorpay_order_id, razorpay_payment_id, razorpay_status, razorpay_refund_id, requested_by, requested_by_email, requested_by_employee')
     .order('date', { ascending: false })
     .order('created_at', { ascending: false });
   if (error) throw error;

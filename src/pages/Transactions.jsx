@@ -13,7 +13,7 @@ import {
   Download,
 } from 'lucide-react';
 import { CATEGORIES, PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from '@/lib/types';
-import { bulkInsertTransactions, createTransaction, deleteTransaction, recomputeAnomalies, updateTransaction } from '@/lib/transactions';
+import { bulkInsertTransactions, createTransaction, deleteTransaction, updateTransaction } from '@/lib/transactions';
 import { parseTransactionsCsv } from '@/lib/csv';
 import { suggestCategory } from '@/lib/categorize';
 import { classNames, formatCurrency, formatDate } from '@/lib/format';
@@ -139,7 +139,6 @@ export function Transactions({ transactions, onChange, readOnly }) {
         await createTransaction(form);
         showToast('success', 'Transaction added');
       }
-      await recomputeAnomalies();
       onChange();
       setModalOpen(false);
     } catch (err) {
@@ -153,7 +152,6 @@ export function Transactions({ transactions, onChange, readOnly }) {
     if (!confirm('Delete this transaction? This cannot be undone.')) return;
     try {
       await deleteTransaction(id);
-      await recomputeAnomalies();
       onChange();
       showToast('success', 'Transaction deleted');
     } catch (err) {
@@ -179,7 +177,6 @@ export function Transactions({ transactions, onChange, readOnly }) {
         return;
       }
       await bulkInsertTransactions(rows);
-      await recomputeAnomalies();
       onChange();
       setCsvOpen(false);
       setCsvText('');

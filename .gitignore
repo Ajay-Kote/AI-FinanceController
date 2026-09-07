@@ -17,6 +17,9 @@ dist-ssr
 !.env.example
 !.env.*.example
 
+# Personal interview notes
+pitchme.txt
+
 # Supabase CLI state
 supabase/.temp/
 
